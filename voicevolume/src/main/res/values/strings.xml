@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Voice Volume Sync</string>
+    <string name="channel_name">Sincronizzazione volume voce</string>
+    <string name="notif_title">Voice Volume Sync attivo</string>
+    <string name="notif_text">Il volume della voce segue quello media</string>
+</resources>

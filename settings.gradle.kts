@@ -16,3 +16,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Carshare"
 include(":app")
+include(":voicevolume")
