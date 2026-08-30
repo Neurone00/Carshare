@@ -19,9 +19,22 @@ android {
         viewBinding = true
     }
 
+    signingConfigs {
+        create("shared") {
+            storeFile = rootProject.file("carshare.keystore")
+            storePassword = "carshare"
+            keyAlias = "carshare"
+            keyPassword = "carshare"
+        }
+    }
+
     buildTypes {
+        debug {
+            signingConfig = signingConfigs.getByName("shared")
+        }
         release {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("shared")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
