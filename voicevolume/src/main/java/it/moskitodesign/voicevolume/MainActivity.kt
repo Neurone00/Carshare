@@ -1,7 +1,10 @@
 package it.moskitodesign.voicevolume
 
 import android.Manifest
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.media.AudioManager
 import android.os.Build
@@ -43,6 +46,18 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /** Live feedback: which stream index changed (e.g. when turning the car knob). */
+    private val volumeReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action != VolumeSyncService.VOLUME_CHANGED_ACTION) return
+            val type = intent.getIntExtra("android.media.EXTRA_VOLUME_STREAM_TYPE", -1)
+            val value = intent.getIntExtra("android.media.EXTRA_VOLUME_STREAM_VALUE", -1)
+            val label = streams.firstOrNull { it.second == type }?.first ?: "stream $type"
+            b.tvLastChange.text = "Ultimo cambio: $label → $value"
+            refreshAll()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         audio = getSystemService(Context.AUDIO_SERVICE) as AudioManager
@@ -52,6 +67,7 @@ class MainActivity : AppCompatActivity() {
         b = ActivityMainBinding.inflate(layoutInflater)
         setContentView(b.root)
 
+        setupMaster()
         buildStreamRows()
         setupMultiplier()
         setupTestButtons()
@@ -68,11 +84,17 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         audio.registerAudioPlaybackCallback(playbackCb, handler)
+        ContextCompat.registerReceiver(
+            this, volumeReceiver,
+            IntentFilter(VolumeSyncService.VOLUME_CHANGED_ACTION),
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
         refreshAll()
     }
 
     override fun onPause() {
         audio.unregisterAudioPlaybackCallback(playbackCb)
+        runCatching { unregisterReceiver(volumeReceiver) }
         super.onPause()
     }
 
@@ -102,6 +124,24 @@ class MainActivity : AppCompatActivity() {
             row.btnTest.setOnClickListener { tester.tone(s) }
             rows.add(s to row)
             b.streamsContainer.addView(row.root)
+        }
+    }
+
+    // ---------- master media ----------
+
+    private fun setupMaster() {
+        val max = audio.getStreamMaxVolume(AudioManager.STREAM_MUSIC).coerceAtLeast(1)
+        b.sliderMaster.valueFrom = 0f
+        b.sliderMaster.valueTo = max.toFloat()
+        b.sliderMaster.value = audio.getStreamVolume(AudioManager.STREAM_MUSIC).coerceIn(0, max).toFloat()
+        b.tvMaster.text = "${audio.getStreamVolume(AudioManager.STREAM_MUSIC)}/$max"
+        b.sliderMaster.addOnChangeListener { _, value, fromUser ->
+            if (!fromUser) return@addOnChangeListener
+            val cap = (max * prefs.safetyCapPercent / 100f).toInt().coerceIn(0, max)
+            val v = value.toInt().coerceIn(0, cap)
+            runCatching { audio.setStreamVolume(AudioManager.STREAM_MUSIC, v, 0) }
+            b.tvMaster.text = "$v/$max"
+            if (v.toFloat() != value) b.sliderMaster.value = v.toFloat() // enforce cap
         }
     }
 
@@ -267,6 +307,10 @@ class MainActivity : AppCompatActivity() {
     private fun refreshAll() {
         refreshConnection()
         refreshDiag()
+        val mmax = audio.getStreamMaxVolume(AudioManager.STREAM_MUSIC).coerceAtLeast(1)
+        b.sliderMaster.valueTo = mmax.toFloat()
+        b.sliderMaster.value = audio.getStreamVolume(AudioManager.STREAM_MUSIC).coerceIn(0, mmax).toFloat()
+        b.tvMaster.text = "${audio.getStreamVolume(AudioManager.STREAM_MUSIC)}/$mmax"
         for ((s, row) in rows) {
             val max = audio.getStreamMaxVolume(s).coerceAtLeast(1)
             row.sliderVol.valueTo = max.toFloat()

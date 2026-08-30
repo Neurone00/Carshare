@@ -3,6 +3,8 @@
     <string name="app_name">Carshare Audio</string>
     <string name="header_subtitle">Diagnostica &amp; controllo audio auto</string>
 
+    <string name="sec_master">Master Media</string>
+    <string name="hint_master">Alza insieme media, note vocali WhatsApp, Assistente e lettura messaggi (STREAM_MUSIC), entro il limite di sicurezza.</string>
     <string name="sec_connection">Connessione</string>
     <string name="sec_diagnostics">Diagnostica</string>
     <string name="sec_output">Controllo volumi output</string>

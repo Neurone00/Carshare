@@ -43,6 +43,33 @@
                 android:textSize="14sp" />
         </LinearLayout>
 
+        <!-- Master Media -->
+        <com.google.android.material.card.MaterialCardView
+            style="@style/CardBox">
+
+            <LinearLayout style="@style/CardInner">
+
+                <TextView style="@style/CardTitle" android:text="@string/sec_master" />
+                <TextView style="@style/CardHint" android:text="@string/hint_master" />
+
+                <TextView
+                    android:id="@+id/tvMaster"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textAppearance="?attr/textAppearanceTitleLarge"
+                    android:textColor="?attr/colorPrimary" />
+
+                <com.google.android.material.slider.Slider
+                    android:id="@+id/sliderMaster"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:stepSize="1"
+                    android:valueFrom="0"
+                    android:valueTo="15" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
         <!-- Connessione -->
         <com.google.android.material.card.MaterialCardView
             style="@style/CardBox">
@@ -83,6 +110,13 @@
                     android:layout_marginTop="6dp"
                     android:textAppearance="?attr/textAppearanceLabelLarge"
                     android:textColor="?attr/colorPrimary" />
+
+                <TextView
+                    android:id="@+id/tvLastChange"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textAppearance="?attr/textAppearanceBodySmall" />
 
                 <TextView
                     android:id="@+id/tvDiag"
