@@ -1,12 +1,15 @@
 package it.moskitodesign.voicevolume
 
 import android.Manifest
+import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.media.AudioManager
+import android.provider.Settings
+import android.widget.Toast
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -76,6 +79,10 @@ class MainActivity : AppCompatActivity() {
 
         b.btnRefreshConn.setOnClickListener { refreshConnection() }
         b.btnRefreshDiag.setOnClickListener { refreshDiag() }
+        b.btnDnd.setOnClickListener {
+            if (hasDndAccess()) toast("Controllo volumi sistema già abilitato")
+            else requestDndAccess()
+        }
 
         refreshAll()
         animateIn()
@@ -118,8 +125,8 @@ class MainActivity : AppCompatActivity() {
             row.tvStreamValue.text = "${audio.getStreamVolume(s)}/$max"
             row.sliderVol.addOnChangeListener { _, value, fromUser ->
                 if (fromUser) {
-                    runCatching { audio.setStreamVolume(s, value.toInt(), 0) }
-                    row.tvStreamValue.text = "${value.toInt()}/$max"
+                    setStreamChecked(s, value.toInt(), label)
+                    row.tvStreamValue.text = "${audio.getStreamVolume(s)}/$max"
                 }
             }
             row.btnTest.setOnClickListener { tester.tone(s) }
@@ -127,6 +134,46 @@ class MainActivity : AppCompatActivity() {
             b.streamsContainer.addView(row.root)
         }
     }
+
+    // ---------- system-volume permission & checked writes ----------
+
+    private val dndGatedStreams = setOf(
+        AudioManager.STREAM_SYSTEM, AudioManager.STREAM_RING,
+        AudioManager.STREAM_NOTIFICATION, AudioManager.STREAM_ALARM
+    )
+    private var dndPrompted = false
+
+    /** Set a stream volume and surface what actually happened (success / blocked). */
+    private fun setStreamChecked(stream: Int, target: Int, label: String) {
+        val res = runCatching { audio.setStreamVolume(stream, target, 0) }
+        val actual = audio.getStreamVolume(stream)
+        when {
+            res.isFailure -> {
+                if (stream in dndGatedStreams && !hasDndAccess()) promptDnd(label)
+                else toast("$label: modifica non permessa")
+            }
+            actual != target -> {
+                if (stream in dndGatedStreams && !hasDndAccess()) promptDnd(label)
+                else toast("$label: bloccato a $actual (stream fisso/aliased)")
+            }
+        }
+    }
+
+    private fun hasDndAccess(): Boolean =
+        getSystemService(NotificationManager::class.java).isNotificationPolicyAccessGranted
+
+    private fun promptDnd(label: String) {
+        if (dndPrompted) return
+        dndPrompted = true
+        toast("Per alzare \"$label\" serve l'accesso Non disturbare")
+        requestDndAccess()
+    }
+
+    private fun requestDndAccess() {
+        runCatching { startActivity(Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS)) }
+    }
+
+    private fun toast(msg: String) = Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
 
     // ---------- master media ----------
 
@@ -200,7 +247,8 @@ class MainActivity : AppCompatActivity() {
         val cap = (targetMax * prefs.safetyCapPercent / 100f).toInt().coerceIn(0, targetMax)
         val desired = ((mediaCur.toFloat() / mediaMax) * mult * targetMax)
             .toInt().coerceIn(0, cap)
-        runCatching { audio.setStreamVolume(target, desired, 0) }
+        val label = streams.firstOrNull { it.second == target }?.first ?: "voce"
+        setStreamChecked(target, desired, label)
     }
 
     // ---------- test protocol ----------

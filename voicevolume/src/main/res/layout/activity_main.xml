@@ -146,6 +146,14 @@
                 <TextView style="@style/CardTitle" android:text="@string/sec_output" />
                 <TextView style="@style/CardHint" android:text="@string/hint_output" />
 
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnDnd"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="@string/enable_system_volume" />
+
                 <LinearLayout
                     android:id="@+id/streamsContainer"
                     android:layout_width="match_parent"

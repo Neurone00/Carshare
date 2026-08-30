@@ -13,6 +13,7 @@
     <string name="sec_update">Aggiornamenti</string>
 
     <string name="hint_output">Regola direttamente ogni stream, indipendente dai comandi auto.</string>
+    <string name="enable_system_volume">Abilita controllo volumi sistema (DND)</string>
     <string name="hint_multiplier">Tiene la voce proporzionale al media. I comandi auto restano validi sopra.</string>
     <string name="hint_test">Protocollo guidato di validazione per ciascuna modalità di connessione.</string>
     <string name="hint_update">URL del manifest JSON (versionCode, versionName, url, notes).</string>
