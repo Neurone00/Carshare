@@ -23,7 +23,9 @@
     <string name="proto_wireless">Protocollo wireless</string>
     <string name="refresh">Aggiorna</string>
     <string name="check_update">Controlla aggiornamenti</string>
+    <string name="auto_update">Aggiornamenti automatici</string>
     <string name="update_url_hint">https://…/carshare-audio-latest.json</string>
+    <string name="safety_cap">Limite di sicurezza (max)</string>
 
     <string name="channel_name">Sincronizzazione volume voce</string>
     <string name="notif_title">Carshare Audio attivo</string>

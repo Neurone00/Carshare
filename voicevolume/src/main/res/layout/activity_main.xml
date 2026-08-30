@@ -156,6 +156,21 @@
                     android:valueFrom="50"
                     android:valueTo="200" />
 
+                <TextView
+                    android:id="@+id/tvCap"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:textAppearance="?attr/textAppearanceBodyMedium" />
+
+                <com.google.android.material.slider.Slider
+                    android:id="@+id/sliderCap"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:stepSize="5"
+                    android:valueFrom="10"
+                    android:valueTo="100" />
+
                 <com.google.android.material.materialswitch.MaterialSwitch
                     android:id="@+id/swSync"
                     android:layout_width="match_parent"
@@ -255,6 +270,13 @@
                         android:layout_height="wrap_content"
                         android:inputType="textUri" />
                 </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/swAuto"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="@string/auto_update" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnCheckUpdate"

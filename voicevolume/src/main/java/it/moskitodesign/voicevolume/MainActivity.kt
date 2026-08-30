@@ -62,6 +62,7 @@ class MainActivity : AppCompatActivity() {
 
         refreshAll()
         animateIn()
+        autoCheckOnLaunch()
     }
 
     override fun onResume() {
@@ -128,6 +129,14 @@ class MainActivity : AppCompatActivity() {
             b.tvMult.text = "Fattore: ${value.toInt()}%"
         }
 
+        val cap = prefs.safetyCapPercent.coerceIn(10, 100)
+        b.sliderCap.value = ((cap / 5) * 5).coerceIn(10, 100).toFloat()
+        b.tvCap.text = "Limite di sicurezza: $cap%"
+        b.sliderCap.addOnChangeListener { _, value, _ ->
+            prefs.safetyCapPercent = value.toInt()
+            b.tvCap.text = "Limite di sicurezza: ${value.toInt()}%"
+        }
+
         b.swSync.isChecked = prefs.enabled
         b.swSync.setOnCheckedChangeListener { _, checked ->
             prefs.enabled = checked
@@ -147,8 +156,9 @@ class MainActivity : AppCompatActivity() {
         val mediaCur = audio.getStreamVolume(AudioManager.STREAM_MUSIC)
         val mediaMax = audio.getStreamMaxVolume(AudioManager.STREAM_MUSIC).coerceAtLeast(1)
         val targetMax = audio.getStreamMaxVolume(target).coerceAtLeast(1)
+        val cap = (targetMax * prefs.safetyCapPercent / 100f).toInt().coerceIn(0, targetMax)
         val desired = ((mediaCur.toFloat() / mediaMax) * mult * targetMax)
-            .toInt().coerceIn(0, targetMax)
+            .toInt().coerceIn(0, cap)
         runCatching { audio.setStreamVolume(target, desired, 0) }
     }
 
@@ -213,21 +223,36 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupUpdater() {
         b.etUrl.setText(prefs.updateUrl)
-        b.tvUpdate.text = "Versione installata: ${Updater.currentVersionCode(this)}"
+        val pkg = packageManager.getPackageInfo(packageName, 0)
+        b.tvUpdate.text = "Versione installata: ${pkg.versionName} (${Updater.currentVersionCode(this)})"
+        b.swAuto.isChecked = prefs.autoUpdate
+        b.swAuto.setOnCheckedChangeListener { _, checked -> prefs.autoUpdate = checked }
         b.btnCheckUpdate.setOnClickListener {
             prefs.updateUrl = b.etUrl.text?.toString()?.trim() ?: ""
             b.tvUpdate.text = "Controllo…"
-            Updater.check(this) { r -> onUpdateResult(r) }
+            Updater.check(this) { r -> onUpdateResult(r, auto = false) }
         }
     }
 
-    private fun onUpdateResult(r: Updater.Result) {
+    /** Silent check on launch: if enabled and an update exists, install it. */
+    private fun autoCheckOnLaunch() {
+        if (!prefs.autoUpdate || prefs.updateUrl.isBlank()) return
+        Updater.check(this) { r -> onUpdateResult(r, auto = true) }
+    }
+
+    private fun onUpdateResult(r: Updater.Result, auto: Boolean) {
         when {
-            r.error != null -> { b.tvUpdate.text = "Errore: ${r.error}"; return }
-            !r.hasUpdate -> { b.tvUpdate.text = "Sei aggiornato (${r.versionName ?: "?"})"; return }
+            r.error != null -> { if (!auto) b.tvUpdate.text = "Errore: ${r.error}"; return }
+            !r.hasUpdate -> { if (!auto) b.tvUpdate.text = "Sei aggiornato (${r.versionName ?: "?"})"; return }
+        }
+        val apk = r.apkUrl
+        if (auto && apk != null) {
+            b.tvUpdate.text = "Aggiornamento ${r.versionName}: scarico…"
+            Updater.downloadAndInstall(this, apk) { msg -> b.tvUpdate.text = msg }
+            return
         }
         b.tvUpdate.text = "Disponibile ${r.versionName}\n${r.notes ?: ""}"
-        val apk = r.apkUrl ?: return
+        if (apk == null) return
         val btn = com.google.android.material.button.MaterialButton(this).apply {
             text = "Scarica e installa ${r.versionName}"
             setOnClickListener {

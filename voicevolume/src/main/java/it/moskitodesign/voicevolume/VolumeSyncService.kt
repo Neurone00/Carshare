@@ -59,8 +59,11 @@ class VolumeSyncService : Service() {
         val mediaMax = audio.getStreamMaxVolume(AudioManager.STREAM_MUSIC).coerceAtLeast(1)
         val targetMax = audio.getStreamMaxVolume(targetStream).coerceAtLeast(1)
 
+        // Safety ceiling: never exceed this fraction of the stream max.
+        val cap = (targetMax * prefs.safetyCapPercent / 100f).roundToInt().coerceIn(0, targetMax)
+
         val fraction = (mediaCur.toFloat() / mediaMax) * multiplier
-        val desired = (fraction * targetMax).roundToInt().coerceIn(0, targetMax)
+        val desired = (fraction * targetMax).roundToInt().coerceIn(0, cap)
 
         if (audio.getStreamVolume(targetStream) != desired) {
             runCatching { audio.setStreamVolume(targetStream, desired, 0) }

@@ -29,15 +29,28 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Build debug APKs
-        run: ./gradlew assembleDebug --stacktrace
+        run: ./gradlew assembleDebug -PversionCode=${{ github.run_number }} -PversionName=1.0.${{ github.run_number }} --stacktrace
 
-      - name: Upload APK artifacts
+      - name: Generate update manifest
+        run: |
+          cat > update.json <<EOF
+          {
+            "versionCode": ${{ github.run_number }},
+            "versionName": "1.0.${{ github.run_number }}",
+            "url": "https://github.com/${{ github.repository }}/releases/download/latest-build/voicevolume-debug.apk",
+            "notes": "Build automatica ${{ github.run_number }}"
+          }
+          EOF
+          cat update.json
+
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: carshare-apks
           path: |
             app/build/outputs/apk/debug/app-debug.apk
             voicevolume/build/outputs/apk/debug/voicevolume-debug.apk
+            update.json
           if-no-files-found: error
 
       - name: Publish to Release (latest-build)
@@ -49,3 +62,4 @@ jobs:
           files: |
             app/build/outputs/apk/debug/app-debug.apk
             voicevolume/build/outputs/apk/debug/voicevolume-debug.apk
+            update.json
