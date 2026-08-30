@@ -66,6 +66,7 @@ object AudioProbe {
         AudioAttributes.USAGE_VOICE_COMMUNICATION -> "Voce chiamata"
         AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE -> "Guida navigazione"
         AudioAttributes.USAGE_ASSISTANT -> "Assistente"
+        AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY -> "Accessibilità (TTS)"
         AudioAttributes.USAGE_ASSISTANCE_SONIFICATION -> "Suoni sistema"
         AudioAttributes.USAGE_NOTIFICATION -> "Notifica"
         AudioAttributes.USAGE_NOTIFICATION_RINGTONE -> "Suoneria"

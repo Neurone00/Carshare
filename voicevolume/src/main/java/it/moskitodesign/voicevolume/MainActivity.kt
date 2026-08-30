@@ -34,6 +34,7 @@ class MainActivity : AppCompatActivity() {
     private val streams = listOf(
         "Voce chiamata / HFP" to AudioManager.STREAM_VOICE_CALL,
         "Media / Musica" to AudioManager.STREAM_MUSIC,
+        "Accessibilità (lettura TTS)" to AudioManager.STREAM_ACCESSIBILITY,
         "Notifiche" to AudioManager.STREAM_NOTIFICATION,
         "Sistema" to AudioManager.STREAM_SYSTEM,
         "Sveglia" to AudioManager.STREAM_ALARM,

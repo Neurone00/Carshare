@@ -67,6 +67,7 @@ class StreamTester(private val context: Context) {
         AudioManager.STREAM_SYSTEM -> AudioAttributes.USAGE_ASSISTANCE_SONIFICATION
         AudioManager.STREAM_ALARM -> AudioAttributes.USAGE_ALARM
         AudioManager.STREAM_RING -> AudioAttributes.USAGE_NOTIFICATION_RINGTONE
+        AudioManager.STREAM_ACCESSIBILITY -> AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY
         else -> AudioAttributes.USAGE_MEDIA
     }
 }
