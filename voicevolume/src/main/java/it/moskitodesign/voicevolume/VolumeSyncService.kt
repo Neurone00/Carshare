@@ -9,6 +9,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.media.AudioManager
+import android.media.audiofx.LoudnessEnhancer
 import android.os.Build
 import android.os.IBinder
 import androidx.core.content.ContextCompat
@@ -25,6 +26,7 @@ import kotlin.math.roundToInt
 class VolumeSyncService : Service() {
 
     private lateinit var audio: AudioManager
+    private var enhancer: LoudnessEnhancer? = null
 
     /** Broadcast fired by the system whenever any stream volume changes. */
     private val volumeReceiver = object : BroadcastReceiver() {
@@ -42,11 +44,23 @@ class VolumeSyncService : Service() {
             ContextCompat.RECEIVER_NOT_EXPORTED
         )
         sync() // align immediately on start
+        applyBoost()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         sync()
+        applyBoost()
         return START_STICKY
+    }
+
+    /** Apply the LoudnessEnhancer gain (global output mix) from prefs. */
+    private fun applyBoost() {
+        val gain = Prefs(this).boostGainMb
+        runCatching {
+            if (enhancer == null) enhancer = LoudnessEnhancer(0) // 0 = global output mix
+            enhancer?.setTargetGain(gain)
+            enhancer?.enabled = gain > 0
+        }
     }
 
     /** Set the target stream proportionally to the current media volume. */
@@ -72,6 +86,8 @@ class VolumeSyncService : Service() {
 
     override fun onDestroy() {
         runCatching { unregisterReceiver(volumeReceiver) }
+        runCatching { enhancer?.release() }
+        enhancer = null
         super.onDestroy()
     }
 

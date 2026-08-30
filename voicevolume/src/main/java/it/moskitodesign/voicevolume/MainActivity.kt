@@ -191,6 +191,27 @@ class MainActivity : AppCompatActivity() {
             b.tvMaster.text = "$v/$max"
             if (v.toFloat() != value) b.sliderMaster.value = v.toFloat() // enforce cap
         }
+
+        // Software boost (LoudnessEnhancer) in dB, applied by the service.
+        val db = (prefs.boostGainMb / 100).coerceIn(0, 12)
+        b.sliderBoost.value = db.toFloat()
+        b.tvBoost.text = "Boost audio: +$db dB"
+        b.sliderBoost.addOnChangeListener { _, value, fromUser ->
+            if (!fromUser) return@addOnChangeListener
+            prefs.boostGainMb = value.toInt() * 100
+            b.tvBoost.text = "Boost audio: +${value.toInt()} dB"
+            applyServiceState()
+        }
+    }
+
+    /** Start/refresh the service when sync or boost is active, else stop it. */
+    private fun applyServiceState() {
+        if (prefs.enabled || prefs.boostGainMb > 0) {
+            ensureNotificationPermission()
+            VolumeSyncService.start(this)
+        } else {
+            VolumeSyncService.stop(this)
+        }
     }
 
     // ---------- multiplier ----------
@@ -228,8 +249,7 @@ class MainActivity : AppCompatActivity() {
         b.swSync.isChecked = prefs.enabled
         b.swSync.setOnCheckedChangeListener { _, checked ->
             prefs.enabled = checked
-            if (checked) { ensureNotificationPermission(); VolumeSyncService.start(this) }
-            else VolumeSyncService.stop(this)
+            applyServiceState()
         }
 
         b.btnApplyOnce.setOnClickListener { applyMultiplierOnce(); refreshAll() }
