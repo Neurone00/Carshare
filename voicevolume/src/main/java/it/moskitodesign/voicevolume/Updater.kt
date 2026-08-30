@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.provider.Settings
 import androidx.core.content.FileProvider
 import org.json.JSONObject
 import java.io.File
@@ -19,7 +20,8 @@ import java.net.URL
  *   { "versionCode": 2, "versionName": "0.2.0",
  *     "url": "https://host/voicevolume.apk", "notes": "..." }
  * If versionCode is newer than the installed build, downloads the APK and
- * launches the system package installer (requires REQUEST_INSTALL_PACKAGES).
+ * launches the system package installer (requires REQUEST_INSTALL_PACKAGES
+ * and the per-app "install unknown apps" permission on Android 8+).
  */
 object Updater {
 
@@ -37,6 +39,22 @@ object Updater {
         val pi = context.packageManager.getPackageInfo(context.packageName, 0)
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) pi.longVersionCode
         else @Suppress("DEPRECATION") pi.versionCode.toLong()
+    }
+
+    /** Whether the app may launch an APK install (per-app "unknown sources"). */
+    fun canInstall(context: Context): Boolean =
+        Build.VERSION.SDK_INT < Build.VERSION_CODES.O ||
+            context.packageManager.canRequestPackageInstalls()
+
+    /** Send the user to grant "install unknown apps" for this app. */
+    fun requestInstallPermission(context: Context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val intent = Intent(
+                Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
+                Uri.parse("package:${context.packageName}")
+            ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            runCatching { context.startActivity(intent) }
+        }
     }
 
     fun check(context: Context, onResult: (Result) -> Unit) {
@@ -72,7 +90,15 @@ object Updater {
                 val dir = File(context.cacheDir, "updates").apply { mkdirs() }
                 val apk = File(dir, "voicevolume-update.apk")
                 downloadTo(apkUrl, apk) { pct -> main.post { onProgress("Download… $pct%") } }
-                main.post { onProgress("Avvio installazione…"); install(context, apk) }
+                main.post {
+                    if (!canInstall(context)) {
+                        onProgress("Consenti \"Installa app sconosciute\", poi riapri per completare")
+                        requestInstallPermission(context)
+                    } else {
+                        onProgress("Avvio installazione…")
+                        install(context, apk)
+                    }
+                }
                 "ok"
             }
             outcome.exceptionOrNull()?.let { e ->
@@ -93,14 +119,37 @@ object Updater {
         context.startActivity(intent)
     }
 
-    private fun httpGet(spec: String): String {
-        val conn = (URL(spec).openConnection() as HttpURLConnection).apply {
-            connectTimeout = 15000
-            readTimeout = 15000
-            requestMethod = "GET"
+    /** Open [spec], manually following up to 5 redirects (GitHub → S3, any protocol). */
+    private fun open(spec: String, readTimeout: Int): HttpURLConnection {
+        var url = URL(spec)
+        var redirects = 0
+        while (true) {
+            val c = (url.openConnection() as HttpURLConnection).apply {
+                connectTimeout = 15000
+                this.readTimeout = readTimeout
+                instanceFollowRedirects = false
+                setRequestProperty("User-Agent", "CarshareAudio")
+                setRequestProperty("Accept", "*/*")
+            }
+            val code = c.responseCode
+            if (code in 300..399 && redirects < 5) {
+                val loc = c.getHeaderField("Location") ?: error("Redirect senza Location")
+                c.disconnect()
+                url = URL(url, loc)
+                redirects++
+                continue
+            }
+            if (code !in 200..299) {
+                c.disconnect()
+                error("HTTP $code")
+            }
+            return c
         }
+    }
+
+    private fun httpGet(spec: String): String {
+        val conn = open(spec, 15000)
         try {
-            if (conn.responseCode !in 200..299) error("HTTP ${conn.responseCode}")
             return conn.inputStream.bufferedReader().use { it.readText() }
         } finally {
             conn.disconnect()
@@ -108,12 +157,8 @@ object Updater {
     }
 
     private fun downloadTo(spec: String, dest: File, onPct: (Int) -> Unit) {
-        val conn = (URL(spec).openConnection() as HttpURLConnection).apply {
-            connectTimeout = 15000
-            readTimeout = 30000
-        }
+        val conn = open(spec, 30000)
         try {
-            if (conn.responseCode !in 200..299) error("HTTP ${conn.responseCode}")
             val total = conn.contentLength.toLong()
             var read = 0L
             conn.inputStream.use { input ->
