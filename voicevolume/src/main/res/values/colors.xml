@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Brand -->
+    <color name="violet">#6C5CE7</color>
+    <color name="violet_bright">#8B7CFF</color>
+    <color name="cyan">#00D2C6</color>
+    <color name="magenta">#FF5CA8</color>
+
+    <!-- Light -->
+    <color name="light_bg">#F5F6FB</color>
+    <color name="light_surface">#FFFFFF</color>
+    <color name="light_surface_variant">#ECEDF6</color>
+    <color name="light_on_bg">#151625</color>
+    <color name="light_on_surface_variant">#565873</color>
+    <color name="light_outline">#D9DBEA</color>
+
+    <!-- Dark -->
+    <color name="dark_bg">#0C0D16</color>
+    <color name="dark_surface">#161829</color>
+    <color name="dark_surface_variant">#20233A</color>
+    <color name="dark_on_bg">#ECEEFB</color>
+    <color name="dark_on_surface_variant">#A4A8C7</color>
+    <color name="dark_outline">#2C2F49</color>
+
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+</resources>

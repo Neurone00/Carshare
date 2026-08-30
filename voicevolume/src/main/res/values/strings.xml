@@ -1,7 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Voice Volume Sync</string>
+    <string name="app_name">Carshare Audio</string>
+    <string name="header_subtitle">Diagnostica &amp; controllo audio auto</string>
+
+    <string name="sec_connection">Connessione</string>
+    <string name="sec_diagnostics">Diagnostica</string>
+    <string name="sec_output">Controllo volumi output</string>
+    <string name="sec_multiplier">Moltiplicatore base voce</string>
+    <string name="sec_test">Modalità test</string>
+    <string name="sec_update">Aggiornamenti</string>
+
+    <string name="hint_output">Regola direttamente ogni stream, indipendente dai comandi auto.</string>
+    <string name="hint_multiplier">Tiene la voce proporzionale al media. I comandi auto restano validi sopra.</string>
+    <string name="hint_test">Protocollo guidato di validazione per ciascuna modalità di connessione.</string>
+    <string name="hint_update">URL del manifest JSON (versionCode, versionName, url, notes).</string>
+
+    <string name="voice_stream">Stream della voce:</string>
+    <string name="sync_active">Sincronizzazione attiva (servizio)</string>
+    <string name="apply_once">Applica ora</string>
+    <string name="speak_test">Voce di test</string>
+    <string name="proto_cable">Protocollo cavo</string>
+    <string name="proto_wireless">Protocollo wireless</string>
+    <string name="refresh">Aggiorna</string>
+    <string name="check_update">Controlla aggiornamenti</string>
+    <string name="update_url_hint">https://…/carshare-audio-latest.json</string>
+
     <string name="channel_name">Sincronizzazione volume voce</string>
-    <string name="notif_title">Voice Volume Sync attivo</string>
+    <string name="notif_title">Carshare Audio attivo</string>
     <string name="notif_text">Il volume della voce segue quello media</string>
 </resources>

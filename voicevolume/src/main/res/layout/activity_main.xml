@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="?android:colorBackground">
+
+    <LinearLayout
+        android:id="@+id/content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:animateLayoutChanges="true"
+        android:paddingBottom="28dp">
+
+        <!-- Header -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_header"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp"
+            android:paddingTop="56dp"
+            android:paddingBottom="28dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/app_name"
+                android:textColor="#FFFFFF"
+                android:textSize="26sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/header_subtitle"
+                android:textColor="#EAE4FF"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <!-- Connessione -->
+        <com.google.android.material.card.MaterialCardView
+            style="@style/CardBox">
+
+            <LinearLayout style="@style/CardInner">
+
+                <TextView style="@style/CardTitle" android:text="@string/sec_connection" />
+
+                <TextView
+                    android:id="@+id/tvConnection"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:textAppearance="?attr/textAppearanceBodyMedium" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnRefreshConn"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="@string/refresh" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Diagnostica -->
+        <com.google.android.material.card.MaterialCardView
+            style="@style/CardBox">
+
+            <LinearLayout style="@style/CardInner">
+
+                <TextView style="@style/CardTitle" android:text="@string/sec_diagnostics" />
+
+                <TextView
+                    android:id="@+id/tvActive"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:textAppearance="?attr/textAppearanceLabelLarge"
+                    android:textColor="?attr/colorPrimary" />
+
+                <TextView
+                    android:id="@+id/tvDiag"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="monospace"
+                    android:textIsSelectable="true"
+                    android:textAppearance="?attr/textAppearanceBodySmall" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnRefreshDiag"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="@string/refresh" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Controllo volumi output -->
+        <com.google.android.material.card.MaterialCardView
+            style="@style/CardBox">
+
+            <LinearLayout style="@style/CardInner">
+
+                <TextView style="@style/CardTitle" android:text="@string/sec_output" />
+                <TextView style="@style/CardHint" android:text="@string/hint_output" />
+
+                <LinearLayout
+                    android:id="@+id/streamsContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="4dp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Moltiplicatore base voce -->
+        <com.google.android.material.card.MaterialCardView
+            style="@style/CardBox">
+
+            <LinearLayout style="@style/CardInner">
+
+                <TextView style="@style/CardTitle" android:text="@string/sec_multiplier" />
+                <TextView style="@style/CardHint" android:text="@string/hint_multiplier" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/voice_stream" />
+
+                <Spinner
+                    android:id="@+id/spinnerVoice"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:id="@+id/tvMult"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:textAppearance="?attr/textAppearanceBodyMedium" />
+
+                <com.google.android.material.slider.Slider
+                    android:id="@+id/sliderMult"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:stepSize="5"
+                    android:valueFrom="50"
+                    android:valueTo="200" />
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/swSync"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="@string/sync_active" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="10dp">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnApplyOnce"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="6dp"
+                        android:text="@string/apply_once" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnSpeakTest"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:text="@string/speak_test" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Modalità test -->
+        <com.google.android.material.card.MaterialCardView
+            style="@style/CardBox">
+
+            <LinearLayout style="@style/CardInner">
+
+                <TextView style="@style/CardTitle" android:text="@string/sec_test" />
+                <TextView style="@style/CardHint" android:text="@string/hint_test" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="8dp">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnTestCavo"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="6dp"
+                        android:text="@string/proto_cable" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnTestWireless"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:text="@string/proto_wireless" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvTestReport"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:fontFamily="monospace"
+                    android:textIsSelectable="true"
+                    android:textAppearance="?attr/textAppearanceBodySmall" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Aggiornamenti -->
+        <com.google.android.material.card.MaterialCardView
+            style="@style/CardBox">
+
+            <LinearLayout
+                android:id="@+id/updateInner"
+                style="@style/CardInner">
+
+                <TextView style="@style/CardTitle" android:text="@string/sec_update" />
+                <TextView style="@style/CardHint" android:text="@string/hint_update" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:hint="@string/update_url_hint">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etUrl"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textUri" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnCheckUpdate"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/check_update" />
+
+                <TextView
+                    android:id="@+id/tvUpdate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textAppearance="?attr/textAppearanceBodySmall" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

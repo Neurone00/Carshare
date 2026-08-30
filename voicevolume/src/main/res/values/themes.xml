@@ -1,4 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.VoiceVolume" parent="Theme.Material3.DayNight" />
+
+    <style name="Theme.VoiceVolume" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/violet</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorPrimaryContainer">#E7E3FF</item>
+        <item name="colorOnPrimaryContainer">#22124F</item>
+
+        <item name="colorSecondary">@color/cyan</item>
+        <item name="colorOnSecondary">#003733</item>
+
+        <item name="android:colorBackground">@color/light_bg</item>
+        <item name="colorSurface">@color/light_surface</item>
+        <item name="colorSurfaceVariant">@color/light_surface_variant</item>
+        <item name="colorOnBackground">@color/light_on_bg</item>
+        <item name="colorOnSurface">@color/light_on_bg</item>
+        <item name="colorOnSurfaceVariant">@color/light_on_surface_variant</item>
+        <item name="colorOutline">@color/light_outline</item>
+
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">?android:colorBackground</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+
+    <style name="CardBox" parent="Widget.Material3.CardView.Elevated">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginStart">16dp</item>
+        <item name="android:layout_marginEnd">16dp</item>
+        <item name="android:layout_marginTop">14dp</item>
+        <item name="cardCornerRadius">22dp</item>
+        <item name="cardElevation">2dp</item>
+    </style>
+
+    <style name="CardInner">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:padding">18dp</item>
+    </style>
+
+    <style name="CardTitle" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="CardHint" parent="TextAppearance.Material3.BodySmall">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">2dp</item>
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+    </style>
+
 </resources>

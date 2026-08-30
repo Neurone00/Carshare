@@ -11,6 +11,7 @@ import android.content.IntentFilter
 import android.media.AudioManager
 import android.os.Build
 import android.os.IBinder
+import androidx.core.content.ContextCompat
 import kotlin.math.roundToInt
 
 /**
@@ -36,7 +37,10 @@ class VolumeSyncService : Service() {
         super.onCreate()
         audio = getSystemService(Context.AUDIO_SERVICE) as AudioManager
         startForeground(NOTIF_ID, buildNotification())
-        registerReceiver(volumeReceiver, IntentFilter(VOLUME_CHANGED_ACTION))
+        ContextCompat.registerReceiver(
+            this, volumeReceiver, IntentFilter(VOLUME_CHANGED_ACTION),
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
         sync() // align immediately on start
     }
 
