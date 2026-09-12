@@ -30,32 +30,36 @@ jobs:
       - name: Unit tests (core)
         run: ./gradlew --no-daemon :core:test
 
-      - name: Prepare release keystore (optional)
-        env:
-          KEYSTORE_B64: ${{ secrets.ADBLOCK_KEYSTORE_B64 }}
-        run: |
-          if [ -n "$KEYSTORE_B64" ]; then
-            echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/release.jks"
-            echo "ADBLOCK_KEYSTORE=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
-          fi
-
       - name: Build APKs
         env:
-          ADBLOCK_KEYSTORE_PASSWORD: ${{ secrets.ADBLOCK_KEYSTORE_PASSWORD }}
-          ADBLOCK_KEY_ALIAS: ${{ secrets.ADBLOCK_KEY_ALIAS }}
-          ADBLOCK_KEY_PASSWORD: ${{ secrets.ADBLOCK_KEY_PASSWORD }}
+          ADBRELLA_BUILD_NUMBER: ${{ github.run_number }}
         run: ./gradlew --no-daemon :app:assembleDebug :app:assembleRelease
 
-      - name: Rename outputs
+      - name: Collect outputs and write update manifest
+        env:
+          BUILD_NUMBER: ${{ github.run_number }}
         run: |
           mkdir -p out
-          cp app/build/outputs/apk/debug/app-debug.apk out/adblock-dns-debug.apk
-          cp app/build/outputs/apk/release/app-release.apk out/adblock-dns-release.apk
+          cp app/build/outputs/apk/debug/app-debug.apk out/adbrella-debug.apk
+          cp app/build/outputs/apk/release/app-release.apk out/adbrella.apk
+          SHA=$(sha256sum out/adbrella.apk | cut -d' ' -f1)
+          SIZE=$(stat -c%s out/adbrella.apk)
+          cat > out/update.json <<JSON
+          {
+            "versionCode": $BUILD_NUMBER,
+            "versionName": "1.$BUILD_NUMBER",
+            "apkUrl": "https://github.com/${{ github.repository }}/releases/download/adblock-latest/adbrella.apk",
+            "sha256": "$SHA",
+            "size": $SIZE,
+            "commit": "${{ github.sha }}"
+          }
+          JSON
+          cat out/update.json
 
       - uses: actions/upload-artifact@v4
         with:
-          name: adblock-dns-apk
-          path: out/*.apk
+          name: adbrella-apk
+          path: out/*
 
       - name: Test report
         if: always()
@@ -69,15 +73,20 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: adblock-latest
-          name: AdBlock DNS (latest build)
+          name: Adbrella (latest build)
           prerelease: true
           body: |
-            Automatic build of `${{ github.ref_name }}` @ ${{ github.sha }}.
-            Install **adblock-dns-debug.apk** on the phone (Settings › Apps › Special access › Install unknown apps).
-          files: out/*.apk
+            ☂ Adbrella build 1.${{ github.run_number }} from `${{ github.ref_name }}` @ ${{ github.sha }}.
+            Install **adbrella.apk** on the phone. Once installed, the app updates itself from this page.
+          files: |
+            out/adbrella.apk
+            out/adbrella-debug.apk
+            out/update.json
 
       - name: GitHub release (tags only)
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: out/*.apk
+          files: |
+            out/adbrella.apk
+            out/update.json

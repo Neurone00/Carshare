@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import io.github.neurone00.adblock.ui.AdBlockTheme
 import io.github.neurone00.adblock.ui.AppRoot
+import io.github.neurone00.adblock.update.InstallReceiver
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -16,5 +17,15 @@ class MainActivity : ComponentActivity() {
                 AppRoot()
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        InstallReceiver.foreground = true
+    }
+
+    override fun onPause() {
+        InstallReceiver.foreground = false
+        super.onPause()
     }
 }

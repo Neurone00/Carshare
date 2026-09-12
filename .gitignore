@@ -7,5 +7,5 @@ local.properties
 captures/
 *.apk
 *.aab
-*.jks
+!app/adbrella.jks
 *.keystore

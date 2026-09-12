@@ -8,7 +8,7 @@ import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.Umbrella
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -23,7 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 
 enum class Tab(val label: String, val icon: ImageVector) {
-    Home("Home", Icons.Filled.Shield),
+    Home("Umbrella", Icons.Filled.Umbrella),
     Lists("Lists", Icons.AutoMirrored.Filled.List),
     Rules("Rules", Icons.Filled.Edit),
     Apps("Apps", Icons.Filled.Apps),

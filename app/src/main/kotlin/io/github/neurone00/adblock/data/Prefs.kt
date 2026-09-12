@@ -65,6 +65,14 @@ object Prefs {
         get() = sp.getLong("total_queries", 0)
         set(v) = put { putLong("total_queries", v) }
 
+    var autoUpdateApp: Boolean
+        get() = sp.getBoolean("auto_update_app", true)
+        set(v) = put { putBoolean("auto_update_app", v) }
+
+    var lastUpdateCheck: Long
+        get() = sp.getLong("last_update_check", 0)
+        set(v) = put { putLong("last_update_check", v) }
+
     var lastUpdate: Long
         get() = sp.getLong("last_update", 0)
         set(v) = put { putLong("last_update", v) }

@@ -1,6 +1,6 @@
-# AdBlock DNS — system-wide ad blocker for Android (Samsung Galaxy S23)
+# ☂ Adbrella — keeps the ads off you
 
-A small, open Android app that blocks ads and trackers in **every app on the
+A system-wide ad blocker for Android (built for a Samsung Galaxy S23). A small, open Android app that blocks ads and trackers in **every app on the
 phone** without root. It runs a local VPN that captures only DNS lookups,
 answers ad/tracker domains with a null address, and forwards everything else
 to a real resolver. No traffic other than DNS is tunnelled, so there is no
@@ -24,21 +24,35 @@ patching the specific app, which is what ReVanced does for YouTube.
 
 ## Installing on the S23
 
-1. Download `adblock-dns-debug.apk` (or `-release.apk`) from the latest
-   **Build** run under *Actions* in this repository (or from *Releases*).
-2. Open it on the phone, allow installing from this source, install.
-3. Open the app, tap **Turn on**, accept the VPN connection request.
+1. On the phone, open the **Adbrella (latest build)** release:
+   https://github.com/Neurone00/Carshare/releases/tag/adblock-latest and
+   download `adbrella.apk`.
+2. Open it, allow installing from this source, install.
+3. Open the app, tap **Open umbrella**, accept the VPN connection request.
 4. In *Settings* inside the app, follow the three "Make it stick" buttons:
    - Battery optimisation → *Not optimised* (One UI otherwise kills it).
-   - Always-on VPN → tap the gear next to *AdBlock DNS* and enable
+   - Always-on VPN → tap the gear next to *Adbrella* and enable
      **Always-on VPN**. Leave *Block connections without VPN* off.
    - Private DNS → **Off** (Connections › More connection settings). If it is
      set to a provider, Android encrypts lookups straight to that provider and
      the filter never sees them.
-5. Optional: add the **AdBlock DNS** tile to the quick-settings panel.
+5. Optional: add the **Adbrella** tile to the quick-settings panel.
 
 The bundled HaGeZi PRO list is active immediately. Tap **Update** in the
 *Lists* tab once to download the latest lists (they refresh daily afterwards).
+
+## Self-updating
+
+Every push builds a new APK, signs it with the committed `app/adbrella.jks`
+key, and publishes it together with `update.json` on the rolling
+`adblock-latest` release. The app checks that manifest on launch (at most every
+6 hours) and once a day in the background, downloads the APK, verifies its
+SHA-256, and installs it through PackageInstaller. Android asks you to confirm
+the first self-update; from then on Adbrella is its own installer of record and
+updates apply silently on Android 12+. Turn it off under *Settings › Updates*.
+
+The build number is the GitHub Actions run number (`versionName 1.<run>`), so
+newer builds always have a higher versionCode.
 
 ## Features
 
@@ -75,16 +89,14 @@ produces `app/build/outputs/apk/debug/app-debug.apk`. The DNS/packet/filter
 engine lives in the pure-JVM `core` module and is unit-tested with
 `./gradlew :core:test`.
 
-CI builds an APK on every push. To get a stable release signature (so updates
-install over the previous version), add repository secrets
-`ADBLOCK_KEYSTORE_B64` (base64 of a `.jks`), `ADBLOCK_KEYSTORE_PASSWORD`,
-`ADBLOCK_KEY_ALIAS`, `ADBLOCK_KEY_PASSWORD`. Without them the release build is
-signed with the runner's debug key, which changes between runs: uninstall
-before installing a newer build.
+CI builds and publishes an APK on every push. All builds are signed with the
+committed key `app/adbrella.jks` (password `adbrella`), which is what makes
+in-place updates possible. That key only protects a sideloaded personal app;
+do not reuse it for anything published to a store.
 
 ## Project layout
 
 ```
 core/   Kotlin/JVM: DNS wire format, IPv4/IPv6+UDP/TCP packet builders, rule parser, compact domain filter
-app/    Android: VpnService + packet loop, blocklist repository, WorkManager updater, Compose UI, QS tile
+app/    Android: VpnService + packet loop, blocklist repository, WorkManager updater, self-updater, Compose UI, QS tile
 ```

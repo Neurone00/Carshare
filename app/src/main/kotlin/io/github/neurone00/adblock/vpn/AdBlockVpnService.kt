@@ -230,7 +230,7 @@ class AdBlockVpnService : VpnService() {
         )
         val count = NumberFormat.getIntegerInstance().format(Stats.blocked.get())
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_shield)
+            .setSmallIcon(R.drawable.ic_umbrella)
             .setContentTitle(getString(R.string.notification_title))
             .setContentText(getString(R.string.notification_text, count))
             .setContentIntent(open)

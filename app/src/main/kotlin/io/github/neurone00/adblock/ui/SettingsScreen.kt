@@ -33,13 +33,20 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.neurone00.adblock.data.Prefs
 import io.github.neurone00.adblock.data.Stats
+import io.github.neurone00.adblock.update.Updater
 import io.github.neurone00.adblock.vpn.UpstreamDns
+import androidx.compose.material3.Button
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
 fun SettingsScreen() {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     val tick by Prefs.changes.collectAsStateWithLifecycle()
+    val update by Updater.state.collectAsStateWithLifecycle()
     val upstream = remember(tick) { Prefs.upstream }
+    val autoUpdateApp = remember(tick) { Prefs.autoUpdateApp }
     val autoStart = remember(tick) { Prefs.autoStart }
     val autoUpdate = remember(tick) { Prefs.autoUpdate }
     val isCustom = UpstreamDns.PROVIDERS.none { it.id == upstream }
@@ -50,6 +57,39 @@ fun SettingsScreen() {
     }
 
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(vertical = 8.dp)) {
+        Section("Updates")
+        ListItem(
+            headlineContent = { Text("Update Adbrella automatically") },
+            supportingContent = { Text("Checks the release page daily and installs new builds. Version ${Updater.currentVersionName(context)} installed.") },
+            trailingContent = { Switch(checked = autoUpdateApp, onCheckedChange = { Prefs.autoUpdateApp = it }) },
+        )
+        Row(Modifier.padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            val u = update
+            Button(
+                onClick = {
+                    scope.launch {
+                        val info = Updater.check(context, manual = true)
+                        if (info != null) Updater.downloadAndInstall(context, info)
+                    }
+                },
+                enabled = u !is Updater.State.Checking && u !is Updater.State.Downloading && u !is Updater.State.Installing,
+            ) { Text("Check for updates") }
+            Text(
+                when (u) {
+                    is Updater.State.Idle -> ""
+                    is Updater.State.Checking -> "Checking…"
+                    is Updater.State.UpToDate -> "You're on the latest build."
+                    is Updater.State.Available -> "Update ${u.info.versionName} available"
+                    is Updater.State.Downloading -> "Downloading ${u.percent}%"
+                    is Updater.State.Installing -> "Installing…"
+                    is Updater.State.Error -> u.message
+                },
+                style = MaterialTheme.typography.bodySmall,
+                color = if (u is Updater.State.Error) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+
+        HorizontalDivider(Modifier.padding(vertical = 8.dp))
         Section("Upstream DNS")
         Text(
             "Where allowed lookups are sent. Automatic uses whatever your Wi-Fi or mobile network provides.",
@@ -112,7 +152,7 @@ fun SettingsScreen() {
             OutlinedButton(
                 onClick = { open(Intent(Settings.ACTION_VPN_SETTINGS)) },
                 modifier = Modifier.fillMaxWidth(),
-            ) { Text("2. Always-on VPN (gear icon next to AdBlock DNS)") }
+            ) { Text("2. Always-on VPN (gear icon next to Adbrella)") }
             OutlinedButton(
                 onClick = { open(Intent(Settings.ACTION_WIRELESS_SETTINGS)) },
                 modifier = Modifier.fillMaxWidth(),

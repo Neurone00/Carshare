@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">AdBlock DNS</string>
-    <string name="notification_channel">Ad blocking status</string>
-    <string name="notification_title">Ad blocking active</string>
-    <string name="notification_text">%1$s ads &amp; trackers blocked</string>
-    <string name="notification_stop">Stop</string>
+    <string name="app_name">Adbrella</string>
+    <string name="tagline">Keeps the ads off you.</string>
+    <string name="notification_channel">Umbrella status</string>
+    <string name="notification_channel_updates">App updates</string>
+    <string name="notification_title">Adbrella is open</string>
+    <string name="notification_text">%1$s ads &amp; trackers kept off you</string>
+    <string name="notification_stop">Close umbrella</string>
+    <string name="update_ready_title">Adbrella update ready</string>
+    <string name="update_ready_text">Tap to install version %1$s</string>
 </resources>
