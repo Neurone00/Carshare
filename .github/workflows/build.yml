@@ -1,0 +1,71 @@
+name: Build
+
+on:
+  push:
+    branches: ['**']
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: 'platforms;android-34 build-tools;34.0.0'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Unit tests (core)
+        run: ./gradlew --no-daemon :core:test
+
+      - name: Prepare release keystore (optional)
+        env:
+          KEYSTORE_B64: ${{ secrets.ADBLOCK_KEYSTORE_B64 }}
+        run: |
+          if [ -n "$KEYSTORE_B64" ]; then
+            echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/release.jks"
+            echo "ADBLOCK_KEYSTORE=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
+          fi
+
+      - name: Build APKs
+        env:
+          ADBLOCK_KEYSTORE_PASSWORD: ${{ secrets.ADBLOCK_KEYSTORE_PASSWORD }}
+          ADBLOCK_KEY_ALIAS: ${{ secrets.ADBLOCK_KEY_ALIAS }}
+          ADBLOCK_KEY_PASSWORD: ${{ secrets.ADBLOCK_KEY_PASSWORD }}
+        run: ./gradlew --no-daemon :app:assembleDebug :app:assembleRelease
+
+      - name: Rename outputs
+        run: |
+          mkdir -p out
+          cp app/build/outputs/apk/debug/app-debug.apk out/adblock-dns-debug.apk
+          cp app/build/outputs/apk/release/app-release.apk out/adblock-dns-release.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: adblock-dns-apk
+          path: out/*.apk
+
+      - name: Test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: core-test-report
+          path: core/build/reports/tests/test
+
+      - name: GitHub release (tags only)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: out/*.apk
