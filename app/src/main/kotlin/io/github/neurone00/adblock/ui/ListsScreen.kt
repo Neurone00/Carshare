@@ -51,6 +51,10 @@ fun ListsScreen() {
     val tick by Prefs.changes.collectAsStateWithLifecycle()
     val enabled = remember(tick) { Prefs.enabledSources }
     val customUrls = remember(tick) { Prefs.customUrls.toList().sorted() }
+    val lastUpdate = remember(tick) { Prefs.lastUpdate }
+    val ruleCounts = remember(tick, status.updating) {
+        (BlocklistSources.all.map { it.id } + Prefs.customUrls).associateWith { Prefs.sourceRules(it) }
+    }
     var newUrl by rememberSaveable { mutableStateOf("") }
     val numbers = remember { NumberFormat.getIntegerInstance() }
 
@@ -63,7 +67,7 @@ fun ListsScreen() {
                     Column(Modifier.weight(1f)) {
                         Text("Blocklists", style = MaterialTheme.typography.titleLarge)
                         Text(
-                            if (Prefs.lastUpdate > 0) "Last updated " + DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(Date(Prefs.lastUpdate))
+                            if (lastUpdate > 0) "Last updated " + DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(Date(lastUpdate))
                             else "Using the bundled list; tap Update to fetch the latest versions.",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -85,8 +89,8 @@ fun ListsScreen() {
         }
         items(BlocklistSources.all, key = { it.id }) { src ->
             val on = src.id in enabled
-            val rules = Prefs.sourceRules(src.id)
-            val downloaded = ListRepository.hasFile(context, src.id)
+            val rules = ruleCounts[src.id] ?: 0
+            val downloaded = remember(src.id, rules) { ListRepository.hasFile(context, src.id) }
             ListItem(
                 headlineContent = { Text(src.name) },
                 supportingContent = {
@@ -123,7 +127,7 @@ fun ListsScreen() {
             ListItem(
                 headlineContent = { Text(url, style = MaterialTheme.typography.bodyMedium) },
                 supportingContent = {
-                    val rules = Prefs.sourceRules(url)
+                    val rules = ruleCounts[url] ?: 0
                     Text(if (rules > 0) "${numbers.format(rules)} rules" else "not downloaded yet", style = MaterialTheme.typography.labelSmall)
                 },
                 trailingContent = {

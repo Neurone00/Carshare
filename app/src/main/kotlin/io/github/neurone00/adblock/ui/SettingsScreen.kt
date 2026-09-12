@@ -40,6 +40,8 @@ fun SettingsScreen() {
     val context = LocalContext.current
     val tick by Prefs.changes.collectAsStateWithLifecycle()
     val upstream = remember(tick) { Prefs.upstream }
+    val autoStart = remember(tick) { Prefs.autoStart }
+    val autoUpdate = remember(tick) { Prefs.autoUpdate }
     val isCustom = UpstreamDns.PROVIDERS.none { it.id == upstream }
     var customIp by rememberSaveable { mutableStateOf(if (isCustom) upstream else "") }
 
@@ -88,12 +90,12 @@ fun SettingsScreen() {
         ListItem(
             headlineContent = { Text("Start on boot") },
             supportingContent = { Text("Restore blocking after a restart. For a guarantee, also enable Always-on VPN below.") },
-            trailingContent = { Switch(checked = Prefs.autoStart, onCheckedChange = { Prefs.autoStart = it }) },
+            trailingContent = { Switch(checked = autoStart, onCheckedChange = { Prefs.autoStart = it }) },
         )
         ListItem(
             headlineContent = { Text("Update lists daily") },
             supportingContent = { Text("On Wi-Fi, when the battery is not low.") },
-            trailingContent = { Switch(checked = Prefs.autoUpdate, onCheckedChange = { Prefs.autoUpdate = it }) },
+            trailingContent = { Switch(checked = autoUpdate, onCheckedChange = { Prefs.autoUpdate = it }) },
         )
 
         HorizontalDivider(Modifier.padding(vertical = 8.dp))
