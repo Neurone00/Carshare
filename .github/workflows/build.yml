@@ -64,6 +64,18 @@ jobs:
           name: core-test-report
           path: core/build/reports/tests/test
 
+      - name: Publish "latest build" prerelease
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/')
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: adblock-latest
+          name: AdBlock DNS (latest build)
+          prerelease: true
+          body: |
+            Automatic build of `${{ github.ref_name }}` @ ${{ github.sha }}.
+            Install **adblock-dns-debug.apk** on the phone (Settings › Apps › Special access › Install unknown apps).
+          files: out/*.apk
+
       - name: GitHub release (tags only)
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
