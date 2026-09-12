@@ -3,6 +3,13 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
+  <!-- Everything sits inside the 66dp safe zone that launcher masks keep. -->
+  <group
+      android:scaleX="0.68"
+      android:scaleY="0.68"
+      android:pivotX="54"
+      android:pivotY="54"
+      android:translateY="2">
     <!-- rain drops bouncing off -->
     <path
         android:fillColor="#B3FFFFFF"
@@ -32,4 +39,5 @@
         android:strokeWidth="4"
         android:strokeLineCap="round"
         android:pathData="M54,58 V80 A6,6 0 0 1 42,80" />
+  </group>
 </vector>
