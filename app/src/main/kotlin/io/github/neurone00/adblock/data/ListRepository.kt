@@ -15,7 +15,6 @@ import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
 import java.security.MessageDigest
-import java.util.zip.GZIPInputStream
 
 /**
  * Downloads blocklists, keeps them on disk and compiles them (plus the user's
@@ -72,7 +71,7 @@ object ListRepository {
                     if (file.exists()) {
                         file.bufferedReader().useLines { builder.addAll(it) }
                     } else if (src.bundledAsset != null) {
-                        GZIPInputStream(ctx.assets.open(src.bundledAsset)).bufferedReader().useLines { builder.addAll(it) }
+                        ctx.assets.open(src.bundledAsset).bufferedReader().useLines { builder.addAll(it) }
                     }
                 } catch (e: IOException) {
                     Log.w(TAG, "Failed reading ${src.id}", e)

@@ -18,7 +18,7 @@ object BlocklistSources {
         Source(
             "hagezi-pro", "HaGeZi Multi PRO",
             "Ads, trackers, telemetry, scam and malware domains. Balanced: strong protection without breaking apps. Bundled with the app.",
-            "${HAGEZI}pro-onlydomains.txt", defaultOn = true, bundledAsset = "blocklist_default.txt.gz",
+            "${HAGEZI}pro-onlydomains.txt", defaultOn = true, bundledAsset = "blocklist_default.txt",
         ),
         Source(
             "adguard-dns", "AdGuard DNS filter",
